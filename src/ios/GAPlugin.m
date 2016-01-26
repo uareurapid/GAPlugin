@@ -132,7 +132,7 @@
 {
     CDVPluginResult* pluginResult = nil;
     
-    if ( ! _trackerStarted) {
+    if ( ! inited) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Tracker not started"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
@@ -185,7 +185,7 @@
 {
     CDVPluginResult* pluginResult = nil;
     
-    if ( ! _trackerStarted) {
+    if ( ! inited) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Tracker not started"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;

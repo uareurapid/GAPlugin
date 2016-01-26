@@ -6,6 +6,7 @@
 
     <name>GAPlugin</name>
   <author>Bob Easterday</author>
+  <repo>https://github.com/mosalingua/GAPlugin.git</repo>
 
   <description>
     This plugin allows you to post usage information to your Google Analytics account.

@@ -21,6 +21,10 @@
 - (void) trackPage:(CDVInvokedUrlCommand*)command;
 - (void) setVariable:(CDVInvokedUrlCommand*)command;
 
+//ecommerce
+- (void) trackTransaction: (CDVInvokedUrlCommand*)command;
+- (void) trackTransactionItem: (CDVInvokedUrlCommand*)command
+
 - (void) successWithMessage:(NSString*)message toID:(NSString*)callbackID;
 - (void) failWithMessage:(NSString*)message toID:(NSString*)callbackID withError:(NSError*) error;
 

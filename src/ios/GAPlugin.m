@@ -145,41 +145,51 @@
     NSNumber *shipping = nil;
     NSString *currencyCode = nil;
     
+    @try {
     
-    if ([command.arguments count] > 0)
-        transactionId = [command.arguments objectAtIndex:0];
-    
-    if ([command.arguments count] > 1)
-        affiliation = [command.arguments objectAtIndex:1];
-    
-    if ([command.arguments count] > 2)
-        revenue = [command.arguments objectAtIndex:2];
-    
-    if ([command.arguments count] > 3)
-        tax = [command.arguments objectAtIndex:3];
-    
-    if ([command.arguments count] > 4)
-        shipping = [command.arguments objectAtIndex:4];
-    
-    if ([command.arguments count] > 5) {
-        //currencyCode = [command.arguments objectAtIndex:5];
-        NSLocale *locale = [NSLocale currentLocale];
-        currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+        if ([command.arguments count] > 0)
+            transactionId = [command.arguments objectAtIndex:0];
+        
+        if ([command.arguments count] > 1)
+            affiliation = [command.arguments objectAtIndex:1];
+        
+        if ([command.arguments count] > 2)
+            revenue = [command.arguments objectAtIndex:2];
+        
+        if ([command.arguments count] > 3)
+            tax = [command.arguments objectAtIndex:3];
+        
+        if ([command.arguments count] > 4)
+            shipping = [command.arguments objectAtIndex:4];
+        
+        if ([command.arguments count] > 5) {
+            //currencyCode = [command.arguments objectAtIndex:5];
+            NSLocale *locale = [NSLocale currentLocale];
+            currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+        }
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        
+        [tracker send:[[GAIDictionaryBuilder createTransactionWithId:transactionId             // (NSString) Transaction ID
+                                                         affiliation:affiliation         // (NSString) Affiliation
+                                                             revenue:revenue                  // (NSNumber) Order revenue (including tax and shipping)
+                                                                 tax:tax                  // (NSNumber) Tax
+                                                            shipping:shipping                      // (NSNumber) Shipping
+                                                        currencyCode:currencyCode] build]];        // (NSString) Currency code
+        
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
     }
-    
-    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-    
-    
-    [tracker send:[[GAIDictionaryBuilder createTransactionWithId:transactionId             // (NSString) Transaction ID
-                                                     affiliation:affiliation         // (NSString) Affiliation
-                                                         revenue:revenue                  // (NSNumber) Order revenue (including tax and shipping)
-                                                             tax:tax                  // (NSNumber) Tax
-                                                        shipping:shipping                      // (NSNumber) Shipping
-                                                    currencyCode:currencyCode] build]];        // (NSString) Currency code
-    
-    
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    @catch (NSException *exception) {
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
+    @finally {
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 }
 
 
@@ -203,44 +213,52 @@
     NSString *currencyCode = nil;
     
     
-    if ([command.arguments count] > 0)
-        transactionId = [command.arguments objectAtIndex:0];
-    
-    if ([command.arguments count] > 1)
-        name = [command.arguments objectAtIndex:1];
-    
-    if ([command.arguments count] > 2)
-        sku = [command.arguments objectAtIndex:2];
-    
-    if ([command.arguments count] > 3)
-        category = [command.arguments objectAtIndex:3];
-    
-    if ([command.arguments count] > 4)
-        price = [command.arguments objectAtIndex:4];
-    
-    if ([command.arguments count] > 5)
-        quantity = [command.arguments objectAtIndex:5];
-    
-    if ([command.arguments count] > 6) {
-        //currencyCode = [command.arguments objectAtIndex:6];
-        NSLocale *locale = [NSLocale currentLocale];
-        currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+    @try {
+        if ([command.arguments count] > 0)
+            transactionId = [command.arguments objectAtIndex:0];
+        
+        if ([command.arguments count] > 1)
+            name = [command.arguments objectAtIndex:1];
+        
+        if ([command.arguments count] > 2)
+            sku = [command.arguments objectAtIndex:2];
+        
+        if ([command.arguments count] > 3)
+            category = [command.arguments objectAtIndex:3];
+        
+        if ([command.arguments count] > 4)
+            price = [command.arguments objectAtIndex:4];
+        
+        if ([command.arguments count] > 5)
+            quantity = [command.arguments objectAtIndex:5];
+        
+        if ([command.arguments count] > 6) {
+            //currencyCode = [command.arguments objectAtIndex:6];
+            NSLocale *locale = [NSLocale currentLocale];
+            currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+        }
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        
+        [tracker send:[[GAIDictionaryBuilder createItemWithTransactionId:transactionId         // (NSString) Transaction ID
+                                                                    name:name  // (NSString) Product Name
+                                                                     sku:sku           // (NSString) Product SKU
+                                                                category:category  // (NSString) Product category
+                                                                   price:price               // (NSNumber)  Product price
+                                                                quantity:quantity                 // (NSNumber)  Product quantity
+                                                            currencyCode:currencyCode] build]];    // (NSString) Currency code
+        
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }
-    
-    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-    
-    
-    [tracker send:[[GAIDictionaryBuilder createItemWithTransactionId:transactionId         // (NSString) Transaction ID
-                                                                name:name  // (NSString) Product Name
-                                                                 sku:sku           // (NSString) Product SKU
-                                                            category:category  // (NSString) Product category
-                                                               price:price               // (NSNumber)  Product price
-                                                            quantity:quantity                 // (NSNumber)  Product quantity
-                                                        currencyCode:currencyCode] build]];    // (NSString) Currency code
-    
-    
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    @catch (NSException *exception) {
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
+    @finally {
+       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
 }
 
 - (void)dealloc

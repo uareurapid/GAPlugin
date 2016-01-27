@@ -161,8 +161,11 @@
     if ([command.arguments count] > 4)
         shipping = [command.arguments objectAtIndex:4];
     
-    if ([command.arguments count] > 5)
-        currencyCode = [command.arguments objectAtIndex:5];
+    if ([command.arguments count] > 5) {
+        //currencyCode = [command.arguments objectAtIndex:5];
+        NSLocale *locale = [NSLocale currentLocale];
+        currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+    }
     
     id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
     
@@ -218,8 +221,11 @@
     if ([command.arguments count] > 5)
         quantity = [command.arguments objectAtIndex:5];
     
-    if ([command.arguments count] > 6)
-        currencyCode = [command.arguments objectAtIndex:6];
+    if ([command.arguments count] > 6) {
+        //currencyCode = [command.arguments objectAtIndex:6];
+        NSLocale *locale = [NSLocale currentLocale];
+        currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+    }
     
     id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
     

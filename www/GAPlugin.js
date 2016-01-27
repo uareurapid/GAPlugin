@@ -46,12 +46,12 @@
 
     /* Support for Google Analytics e-Commerce Tracking */
     /* https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce */
-    GAPlugin.prototype.addTransaction = function(transactionId, affiliation, revenue, tax, shipping, currencyCode, success, error) {
+    GAPlugin.prototype.trackTransaction = function(transactionId, affiliation, revenue, tax, shipping, currencyCode, success, error) {
         return cordovaRef.exec(success, error, 'GAPlugin', 'trackTransaction',
             [transactionId, affiliation, revenue, tax, shipping, currencyCode]);
     };
 
-    GAPlugin.prototype.addTransactionItem = function(transactionId, name ,sku, category, price, quantity, currencyCode, success, error) {
+    GAPlugin.prototype.trackTransactionItem = function(transactionId, name ,sku, category, price, quantity, currencyCode, success, error) {
         return cordovaRef.exec(success, error, 'GAPlugin', 'trackTransactionItem', [transactionId, name ,sku, category, price, quantity, currencyCode]);
     };
  

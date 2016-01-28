@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import com.google.analytics.tracking.android.GAServiceManager;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
+import com.google.analytics.tracking.android.Transaction;
+import com.google.analytics.tracking.android.Transaction.Item;
 
 public class GAPlugin extends CordovaPlugin {
 	@Override
@@ -71,6 +73,50 @@ public class GAPlugin extends CordovaPlugin {
 				tracker.setCustomMetric(args.getInt(0), args.getLong(1));
 				callback.success("setVariable passed - index = " + args.getInt(2) + "; key = " + args.getString(0) + "; value = " + args.getString(1));
 				return true;
+			} catch (final Exception e) {
+				callback.error(e.getMessage());
+			}
+		}
+		else if (action.equals("trackTransactionAndItem")) {
+			try {
+
+				Transaction trans = new Transaction.Builder(
+						args.getString(0),											// (String) Transaction Id, should be unique.
+						(long) args.getDouble(2)*1000000)							// (long) Order total (in micros)
+						.setAffiliation(args.getString(1))                            // (String) Affiliation
+						.setTotalTaxInMicros((long) args.getDouble(3)*1000000)		// (long) Total tax (in micros)
+						.setShippingCostInMicros((long) args.getDouble(4)*1000000)	// (long) Total shipping cost (in micros)
+						.setCurrencyCode("EUR")							// (String) Currency code TODO change
+						.build();
+
+				Item item = new Item.Builder(
+						args.getString(6),//sku
+						args.getString(5),//name
+						((long) args.getDouble(8)*1000000),//price in micros
+						(long)1)
+						.setProductCategory(args.getString(7))//category
+						.build();
+
+				trans.addItem(item);
+				tracker.sendTransaction(trans);
+
+				callback.success
+						(
+								"trackTransactionAndItem: ----------" +
+										" Transaction ID = "+ args.getString(0) +
+										" Affiliation "+args.getString(1) +
+										" Revenue " + args.getDouble(2)+
+										" Tax " +   args.getDouble(3)+
+										" Shipping " + args.getDouble(4)+
+										" Currency code " + args.getString(5)+
+										" --- Transaction item ----" +
+										" SKU " + args.getString(6) +
+										" Name " + args.getString(5) +
+										" Price " + args.getDouble(8) +
+										" Category " + 	args.getString(7)
+						);
+				return true;
+
 			} catch (final Exception e) {
 				callback.error(e.getMessage());
 			}

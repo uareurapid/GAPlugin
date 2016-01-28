@@ -54,6 +54,11 @@
     GAPlugin.prototype.trackTransactionItem = function(transactionId, name ,sku, category, price, quantity, currencyCode, success, error) {
         return cordovaRef.exec(success, error, 'GAPlugin', 'trackTransactionItem', [transactionId, name ,sku, category, price, quantity, currencyCode]);
     };
+
+    //try to do it all in one
+    GAPlugin.prototype.trackTransactionAndItem = function(transactionId, affiliation, revenue, tax, shipping, name ,sku, category, price, quantity, currencyCode, success, error) {
+        return cordovaRef.exec(success, error, 'GAPlugin', 'trackTransactionAndItem', [transactionId, name ,sku, category, price, quantity, currencyCode]);
+    };
  
     if (cordovaRef && cordovaRef.addConstructor) {
         cordovaRef.addConstructor(init);

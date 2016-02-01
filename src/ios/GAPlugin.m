@@ -261,6 +261,100 @@
     }
 }
 
+//track transaction and item in just one method
+- (void) trackTransactionAndItem: (CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult* pluginResult = nil;
+    
+    if ( ! inited) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Tracker not started"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+    
+    NSString *transactionId = nil;
+    NSString *affiliation = nil;
+    NSNumber *revenue = nil;
+    NSNumber *tax = nil;
+    NSNumber *shipping = nil;
+    NSString *currencyCode = nil;
+    NSString *name = nil;
+    NSString *sku = nil;
+    NSString *category = nil;
+    NSNumber *price = nil;
+    NSNumber *quantity = nil;
+    
+    //Args: transactionId, affiliation, revenue, tax, shipping, name ,sku, category, price, quantity, currencyCode
+    @try {
+    
+        if ([command.arguments count] > 0)
+            transactionId = [command.arguments objectAtIndex:0];
+        
+        if ([command.arguments count] > 1)
+            affiliation = [command.arguments objectAtIndex:1];
+        
+        if ([command.arguments count] > 2)
+            revenue = [command.arguments objectAtIndex:2];
+        
+        if ([command.arguments count] > 3)
+            tax = [command.arguments objectAtIndex:3];
+        
+        if ([command.arguments count] > 4)
+            shipping = [command.arguments objectAtIndex:4];
+
+        if ([command.arguments count] > 5)
+            name = [command.arguments objectAtIndex:5];
+
+        if ([command.arguments count] > 6)
+            sku = [command.arguments objectAtIndex:6];
+
+        if ([command.arguments count] > 7)
+            category = [command.arguments objectAtIndex:7];
+
+        if ([command.arguments count] > 8)
+            price = [command.arguments objectAtIndex:8];
+
+        if ([command.arguments count] > 9)
+            quantity = [command.arguments objectAtIndex:9];
+        
+        if ([command.arguments count] > 10) {
+            //currencyCode = [command.arguments objectAtIndex:10];
+            NSLocale *locale = [NSLocale currentLocale];
+            currencyCode = [locale objectForKey:NSLocaleCurrencyCode]; 
+        }
+        
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        
+        
+        [tracker send:[[GAIDictionaryBuilder createTransactionWithId:transactionId             // (NSString) Transaction ID
+                                                         affiliation:affiliation         // (NSString) Affiliation
+                                                             revenue:revenue                  // (NSNumber) Order revenue (including tax and shipping)
+                                                                 tax:tax                  // (NSNumber) Tax
+                                                            shipping:shipping                      // (NSNumber) Shipping
+                                                        currencyCode:currencyCode] build]];        // (NSString) Currency code
+        //use the same tracker object to set the item
+        [tracker send:[[GAIDictionaryBuilder createItemWithTransactionId:transactionId         // (NSString) Transaction ID
+                                                                    name:name  // (NSString) Product Name
+                                                                     sku:sku           // (NSString) Product SKU
+                                                                category:category  // (NSString) Product category
+                                                                   price:price               // (NSNumber)  Product price
+                                                                quantity:quantity                 // (NSNumber)  Product quantity
+                                                            currencyCode:currencyCode] build]];    // (NSString) Currency code
+
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+
+    }
+    @catch (NSException *exception) {
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
+    @finally {
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+}
+
 - (void)dealloc
 {
     [[GAI sharedInstance] dispatch];

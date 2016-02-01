@@ -23,8 +23,8 @@
 
 //ecommerce
 - (void) trackTransaction: (CDVInvokedUrlCommand*)command;
-- (void) trackTransactionItem: (CDVInvokedUrlCommand*)command
-- (void) trackTransactionAndItem: (CDVInvokedUrlCommand*)command
+- (void) trackTransactionItem: (CDVInvokedUrlCommand*)command;
+- (void) trackTransactionAndItem: (CDVInvokedUrlCommand*)command;
 
 - (void) successWithMessage:(NSString*)message toID:(NSString*)callbackID;
 - (void) failWithMessage:(NSString*)message toID:(NSString*)callbackID withError:(NSError*) error;

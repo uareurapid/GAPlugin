@@ -13,11 +13,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Currency;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GAPlugin extends CordovaPlugin {
 
 
 	private static final String GA_TRACKING_ID = "UA-8374345-6";
+	private static final int DISPATCH_PERIOD = 10;
 	public HashMap<Integer, String> customDimensions = new HashMap<Integer, String>();
 	public HashMap<Integer, Long> customMetrics = new HashMap<Integer, Long>();
 
@@ -25,13 +30,16 @@ public class GAPlugin extends CordovaPlugin {
 	public boolean execute(String action, JSONArray args, CallbackContext callback) {
 		GoogleAnalytics ga = GoogleAnalytics.getInstance(cordova.getActivity());
 		Tracker tracker = ga.newTracker(GA_TRACKING_ID);
+		ga.setLocalDispatchPeriod(DISPATCH_PERIOD);
 
 		if (action.equals("initGA")) {
 			try {
-				//these work even if we don´t call initGA
-				ga = GoogleAnalytics.getInstance(cordova.getActivity());
-				tracker = ga.newTracker(args.getString(0));
-				ga.setLocalDispatchPeriod(args.getInt(1));
+
+				if(ga==null || tracker==null || !args.getString(0).equals(GA_TRACKING_ID) || args.getInt(1)!=DISPATCH_PERIOD) {
+					ga = GoogleAnalytics.getInstance(cordova.getActivity());
+					tracker = ga.newTracker(args.getString(0));
+					ga.setLocalDispatchPeriod(args.getInt(1));
+				}
 
 				callback.success("initGA - id = " + args.getString(0) + "; interval = " + args.getInt(1) + " seconds");
 				return true;
@@ -114,9 +122,19 @@ public class GAPlugin extends CordovaPlugin {
 		else if (action.equals("trackTransactionAndItem")) {
 			try {
 
+				final Logger LOG = Logger.getLogger("GAPlugin");
+				LOG.log(Level.INFO, "trackTransactionAndItem");
+
+				String currencyCode  = Currency.getInstance(Locale.getDefault()).getCurrencyCode();
 				HitBuilders.TransactionBuilder hitBuilder = new HitBuilders.TransactionBuilder();
 				addCustomDimensionsToHitBuilder(hitBuilder);
 				addCustomMetricsToHitBuilder(hitBuilder);
+
+				StringBuilder sb = new StringBuilder("Transaction Hit -> ").append("transactionId: ").append(args.getString(0)).append(", affiliation: ").append(args.getString(1))
+						.append(", revenue: ").append(args.getDouble(2) * 1000000).append(", tax: ").append(args.getDouble(3) * 1000000)
+						.append(", shipping: ").append(args.getDouble(4) * 1000000).append(", currencyCode: ").append(currencyCode);
+
+				LOG.log(Level.INFO, sb.toString());
 
 				tracker.send(hitBuilder
 								.setTransactionId(args.getString(0))
@@ -124,12 +142,22 @@ public class GAPlugin extends CordovaPlugin {
 								.setRevenue((long) args.getDouble(2) * 1000000)
 								.setTax((long) args.getDouble(3) * 1000000)
 								.setShipping((long) args.getDouble(4) * 1000000)
-								.setCurrencyCode("EUR")//Currency code TODO change
+								.setCurrencyCode(currencyCode)
 								.build()
 				);
 
+
+
 				HitBuilders.ItemBuilder hitItemBuilder = new HitBuilders.ItemBuilder();
 				addCustomDimensionsToHitBuilder(hitItemBuilder);
+				addCustomMetricsToHitBuilder(hitItemBuilder);
+
+				sb = new StringBuilder("Transaction Item Hit -> ").append("transactionId: ").append(args.getString(0))
+						.append(", name: ").append(args.getString(5)).append(", SKU: ").append(args.getString(6))
+						.append(", category: ").append(args.getString(7)).append(", price: ").append(args.getDouble(8) * 1000000)
+						.append(", quantity: ").append(args.getLong(9)).append(", currencyCode: ").append(currencyCode);
+
+				LOG.log(Level.INFO, sb.toString());
 
 				tracker.send(hitItemBuilder
 								.setTransactionId(args.getString(0))
@@ -138,63 +166,28 @@ public class GAPlugin extends CordovaPlugin {
 								.setCategory(args.getString(7))
 								.setPrice((long) args.getDouble(8) * 1000000)
 								.setQuantity(args.getLong(9))
-								.setCurrencyCode("EUR") //TODO
+								.setCurrencyCode(currencyCode)
 								.build()
 				);
 
 				callback.success
 						(
 								"trackTransactionAndItem: ----------" +
-								" Transaction ID = "+ args.getString(0) +
-								" Affiliation "+args.getString(1) +
-								" Revenue " + args.getDouble(2)+
-								" Tax " +   args.getDouble(3)+
-								" Shipping " + args.getDouble(4)+
-								" Currency code " + args.getString(5)+
-								" --- Transaction item ----" +
-								" SKU " + args.getString(6) +
-								" Name " + args.getString(5) +
-								" Price " + args.getDouble(8) +
-								" Category " + 	args.getString(7)
+										" Transaction ID = "+ args.getString(0) +
+										" Affiliation "+args.getString(1) +
+										" Revenue " + args.getDouble(2)+
+										" Tax " +   args.getDouble(3)+
+										" Shipping " + args.getDouble(4)+
+										" Currency code " + args.getString(5)+
+										" --- Transaction item ----" +
+										" SKU " + args.getString(6) +
+										" Name " + args.getString(5) +
+										" Price " + args.getDouble(8) +
+										" Category " + 	args.getString(7)
 						);
 				return true;
 
-				/*Transaction trans = new Transaction.Builder(
-						args.getString(0),											// (String) Transaction Id, should be unique.
-						(long) args.getDouble(2)*1000000)							// (long) Order total (in micros)
-						.setAffiliation(args.getString(1))                            // (String) Affiliation
-						.setTotalTaxInMicros((long) args.getDouble(3)*1000000)		// (long) Total tax (in micros)
-						.setShippingCostInMicros((long) args.getDouble(4)*1000000)	// (long) Total shipping cost (in micros)
-						.setCurrencyCode("EUR")							// (String) Currency code TODO change
-						.build();
 
-				Item item = new Item.Builder(
-						args.getString(6),//sku
-						args.getString(5),//name
-						((long) args.getDouble(8)*1000000),//price in micros
-				       (long)1)
-						.setProductCategory(args.getString(7))//category
-						.build();
-
-				trans.addItem(item);
-				tracker.sendTransaction(trans);
-
-				callback.success
-						(
-						"trackTransactionAndItem: ----------" +
-						" Transaction ID = "+ args.getString(0) +
-						" Affiliation "+args.getString(1) +
-						" Revenue " + args.getDouble(2)+
-						" Tax " +   args.getDouble(3)+
-						" Shipping " + args.getDouble(4)+
-						" Currency code " + args.getString(5)+
-						" --- Transaction item ----" +
-						" SKU " + args.getString(6) +
-						" Name " + args.getString(5) +
-						" Price " + args.getDouble(8) +
-						" Category " + 	args.getString(7)
-						);
-				return true;*/
 
 			} catch (final Exception e) {
 				callback.error(e.getMessage());

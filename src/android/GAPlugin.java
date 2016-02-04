@@ -131,17 +131,17 @@ public class GAPlugin extends CordovaPlugin {
 				addCustomMetricsToHitBuilder(hitBuilder);
 
 				StringBuilder sb = new StringBuilder("Transaction Hit -> ").append("transactionId: ").append(args.getString(0)).append(", affiliation: ").append(args.getString(1))
-						.append(", revenue: ").append(args.getDouble(2) * 1000000).append(", tax: ").append(args.getDouble(3) * 1000000)
-						.append(", shipping: ").append(args.getDouble(4) * 1000000).append(", currencyCode: ").append(currencyCode);
+						.append(", revenue: ").append(args.getDouble(2)).append(", tax: ").append(args.getDouble(3))
+						.append(", shipping: ").append(args.getDouble(4)).append(", currencyCode: ").append(currencyCode);
 
 				LOG.log(Level.INFO, sb.toString());
 
 				tracker.send(hitBuilder
 								.setTransactionId(args.getString(0))
 								.setAffiliation(args.getString(1))
-								.setRevenue((long) args.getDouble(2) * 1000000)
-								.setTax((long) args.getDouble(3) * 1000000)
-								.setShipping((long) args.getDouble(4) * 1000000)
+								.setRevenue((long) args.getDouble(2))
+								.setTax((long) args.getDouble(3))
+								.setShipping((long) args.getDouble(4))
 								.setCurrencyCode(currencyCode)
 								.build()
 				);
@@ -154,7 +154,7 @@ public class GAPlugin extends CordovaPlugin {
 
 				sb = new StringBuilder("Transaction Item Hit -> ").append("transactionId: ").append(args.getString(0))
 						.append(", name: ").append(args.getString(5)).append(", SKU: ").append(args.getString(6))
-						.append(", category: ").append(args.getString(7)).append(", price: ").append(args.getDouble(8) * 1000000)
+						.append(", category: ").append(args.getString(7)).append(", price: ").append(args.getDouble(8))
 						.append(", quantity: ").append(args.getLong(9)).append(", currencyCode: ").append(currencyCode);
 
 				LOG.log(Level.INFO, sb.toString());
@@ -164,7 +164,7 @@ public class GAPlugin extends CordovaPlugin {
 								.setName(args.getString(5))
 								.setSku(args.getString(6))
 								.setCategory(args.getString(7))
-								.setPrice((long) args.getDouble(8) * 1000000)
+								.setPrice((long) args.getDouble(8))
 								.setQuantity(args.getLong(9))
 								.setCurrencyCode(currencyCode)
 								.build()
@@ -178,7 +178,7 @@ public class GAPlugin extends CordovaPlugin {
 										" Revenue " + args.getDouble(2)+
 										" Tax " +   args.getDouble(3)+
 										" Shipping " + args.getDouble(4)+
-										" Currency code " + args.getString(5)+
+										" Currency code " + currencyCode +
 										" --- Transaction item ----" +
 										" SKU " + args.getString(6) +
 										" Name " + args.getString(5) +

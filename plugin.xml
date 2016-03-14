@@ -29,6 +29,7 @@
       </feature>
         </config-file>
 
+         <framework src="com.google.android.gms:play-services:+" />
         <source-file src="src/android/GAPlugin.java"
                 target-dir="src/com/adobe/plugins" />
     </platform>

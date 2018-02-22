@@ -30,6 +30,10 @@ public class GAPlugin extends CordovaPlugin {
 	public boolean execute(String action, JSONArray args, CallbackContext callback) {
 		GoogleAnalytics ga = GoogleAnalytics.getInstance(cordova.getActivity());
 		Tracker tracker = ga.newTracker(GA_TRACKING_ID);
+		//enable exception reporting
+		tracker.enableExceptionReporting(true);
+		//anonymize IP
+ 		tracker.setAnonymizeIp(true);
 		ga.setLocalDispatchPeriod(DISPATCH_PERIOD);
 
 		if (action.equals("initGA")) {
